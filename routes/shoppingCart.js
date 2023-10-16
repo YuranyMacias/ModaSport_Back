@@ -79,7 +79,7 @@ router.delete('/:id', [
     validateFields
 ], deleteShoppingCart);
 
-router.get('/ByUser', [
+router.get('/find/ByUser', [
     validateJWT,
     validateFields
 ], getShoppingCartByUserId);

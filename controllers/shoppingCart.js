@@ -80,7 +80,7 @@ const updateShoppingCart = async (req = request, res = response) => {
         const { id } = req.params;
         const customer = req.authenticatedUser._id;
 
-        const shoppingCart = await ShoppingCart.findByIdAndUpdate(id, {customer}, { new: true });
+        const shoppingCart = await ShoppingCart.findByIdAndUpdate(id, { customer }, { new: true });
         return res.json(shoppingCart);
     } catch (error) {
         console.log('Error al actualizar carrito de compras: ', error)
@@ -110,19 +110,23 @@ const deleteShoppingCart = async (req = request, res = response) => {
 
 const getShoppingCartByUserId = async (req = request, res = response) => {
     try {
-        const { id } = req.authenticatedUser._id;
+        const id = req.authenticatedUser._id;
 
         const shoppingCart = await ShoppingCart.findOne({ customer: id, status: true })
-        .populate('customer', 'name');
+            .populate('customer', 'name')
+            .sort({ createdAt: -1 });
+        if (shoppingCart?._id) {
+            const details = await ShoppingCartDetail.find({ shoppingCart: shoppingCart._id, status: true })
+                .populate('product', ['name', 'images'])
 
-        const details = await ShoppingCartDetail.find({ shoppingCart: shoppingCart._id, status: true })
-        .populate('product', 'name')
-
-        
+            return res.json({
+                shoppingCart: [shoppingCart],
+                details
+            });
+        }
 
         return res.json({
-            shoppingCart,
-            details
+            message: 'El usuario no tiene carritos de comppra asignados.'
         });
     } catch (error) {
         console.log('Error al consultar carrito de compras por id: ', error)
