@@ -1,19 +1,19 @@
 const { request, response } = require("express");
 
-const { 
-    Order, 
-    OrderDetail, 
-    Product 
+const {
+    Order,
+    OrderDetail,
+    Product
 } = require("../models");
 
-const { 
-    calculatePriceTotal, 
-    calculateTotalOrderWithoutCoupon 
+const {
+    calculatePriceTotal,
+    calculateTotalOrderWithoutCoupon
 } = require("../helpers");
 
-const { 
-    updateTotalOrderWithCoupon, 
-    redeemCouponOnOrder 
+const {
+    updateTotalOrderWithCoupon,
+    redeemCouponOnOrder
 } = require("./coupon");
 
 const getOrderDetailsByIdOrder = async (req = request, res = response) => {
@@ -32,12 +32,14 @@ const getOrderDetailsByIdOrder = async (req = request, res = response) => {
 const createOrderDetail = async (req = request, res = response) => {
     try {
         const { products, idOrder, code } = req.body;
-        let totalOrder = 0;
+
         const details = [];
 
+        const orderDB = await Order.findById(idOrder);
         const productIds = products.map(product => product.id);
         const productDetails = await Product.find({ _id: { $in: productIds } });
 
+        let totalOrder = (orderDB.totalWithoutCoupon) ? parseInt(orderDB.totalWithoutCoupon) : 0;
         products.forEach((newProduct) => {
             const productDetail = productDetails.find(detail => detail._id.toString() === newProduct.id);
 
@@ -47,6 +49,8 @@ const createOrderDetail = async (req = request, res = response) => {
                 order: idOrder,
                 product: productDetail._id,
                 quantity: newProduct.quantity,
+                color: newProduct.color,
+                size: newProduct.size,
                 price: productDetail.price,
                 discount: productDetail.discount,
                 total
@@ -55,23 +59,73 @@ const createOrderDetail = async (req = request, res = response) => {
             totalOrder += total;
         });
 
-        const [orderDetailsUpdated, orderUpdated] = await Promise.all([
+        const [orderDetailsUpdated, order] = await Promise.all([
             OrderDetail.insertMany(details),
-            Order.findByIdAndUpdate({ _id: idOrder }, { totalWithoutCoupon: totalOrder }, { new: true })
+            Order.findByIdAndUpdate({ _id: idOrder },
+                {
+                    totalWithoutCoupon: totalOrder,
+                    total: totalOrder
+                },
+                { new: true })
         ]);
 
-       /* If the `code` coupon exists, the discount will be applied to the order total. */
+        /* If the `code` coupon exists, the discount will be applied to the order total. */
         if (code) {
-           return await redeemCouponOnOrder(req, res); 
-        } 
+            return await redeemCouponOnOrder(req, res);
+        }
 
-        const order = await Order.findByIdAndUpdate({ _id: idOrder }, { total: totalOrder }, { new: true });
+        const dataOrder = await Order.findByIdAndUpdate({ _id: idOrder }, { total: totalOrder }, { new: true });
 
         return res.json({
             message: `Detalle pedido.`,
-            order,
-            details
+            order: dataOrder,
+            details: orderDetailsUpdated
         });
+
+        
+        //     const { products, idOrder, code } = req.body;
+        //     let totalOrder = 0;
+        //     const details = [];
+
+        //     const productIds = products.map(product => product.id);
+        //     const productDetails = await Product.find({ _id: { $in: productIds } });
+
+        //     products.forEach((newProduct) => {
+        //         const productDetail = productDetails.find(detail => detail._id.toString() === newProduct.id);
+
+        //         const total = calculatePriceTotal(productDetail.price, newProduct.quantity, productDetail.discount);
+
+        //         const orderDetail = new OrderDetail({
+        //             order: idOrder,
+        //             product: productDetail._id,
+        //             quantity: newProduct.quantity,
+        //             color: newProduct.color,
+        //             size: newProduct.size,
+        //             price: productDetail.price,
+        //             discount: productDetail.discount,
+        //             total
+        //         });
+        //         details.push(orderDetail);
+        //         totalOrder += total;
+        //     });
+
+        //     const [orderDetailsUpdated, orderUpdated] = await Promise.all([
+        //         OrderDetail.insertMany(details),
+        //         Order.findByIdAndUpdate({ _id: idOrder }, { totalWithoutCoupon: totalOrder }, { new: true })
+        //     ]);
+
+        //    /* If the `code` coupon exists, the discount will be applied to the order total. */
+        //     if (code) {
+        //        return await redeemCouponOnOrder(req, res); 
+        //     } 
+
+        //     const order = await Order.findByIdAndUpdate({ _id: idOrder }, { total: totalOrder }, { new: true });
+
+        //     return res.json({
+        //         message: `Detalle pedido.`,
+        //         order,
+        //         details
+        //     });
 
     } catch (error) {
         console.log('Error al crear el pedido: ', error)
@@ -126,7 +180,7 @@ const updateOrderDetail = async (req = request, res = response) => {
         let order = await Order.findByIdAndUpdate(idOrder, { totalWithoutCoupon: totalOrder }, { new: true });
 
         // Update the order total by applying the redeemed coupon.
-        if(order.coupon) {
+        if (order.coupon) {
             req.body.idOrder = idOrder;
             req.body.idCoupon = order.coupon;
             order = await updateTotalOrderWithCoupon(req, res);
@@ -168,7 +222,7 @@ const deleteOrderDetail = async (req = request, res = response) => {
         let order = await Order.findByIdAndUpdate(idOrder, { totalWithoutCoupon: totalOrder }, { new: true });
 
         // Update the order total by applying the redeemed coupon.
-        if(order.coupon) {
+        if (order.coupon) {
             req.body.idOrder = idOrder;
             req.body.idCoupon = order.coupon;
             order = await updateTotalOrderWithCoupon(req, res);

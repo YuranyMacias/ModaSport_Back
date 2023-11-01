@@ -21,7 +21,8 @@ const {
     getOrdersById,
     createOrder,
     updateOrder,
-    deleteOrder
+    deleteOrder,
+    getOrdersByUserId
 } = require("../controllers/order");
 
 const router = Router();
@@ -79,5 +80,10 @@ router.delete('/:id', [
     check('id').custom(existsOrderById),
     validateFields
 ], deleteOrder);
+
+router.get('/find/ByUser', [
+    validateJWT,
+    validateFields
+], getOrdersByUserId);
 
 module.exports = router;

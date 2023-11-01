@@ -15,6 +15,14 @@ const OrderDetailSchema = Schema({
         type: Number,
         required: [true, 'La cantidad es obligatoria.']
     },
+    color: {
+        type: String,
+        require: [true, 'El color es obligatorio. ']
+    },
+    size: {
+        type: String,
+        require: [true, 'La talla es obligatoria. ']
+    },
     price: {
         type: Schema.Types.Decimal128,
         required: [true, 'El precio es obligatorio.']

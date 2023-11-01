@@ -1,6 +1,6 @@
 const { request, response } = require("express");
 
-const { Order, OrderDetail } = require("../models");
+const { Order, OrderDetail, User } = require("../models");
 const { createOrderDetail } = require("./orderDetail");
 
 
@@ -23,15 +23,23 @@ const getOrders = async (req = request, res = response) => {
 }
 
 const getOrdersById = async (req = request, res = response) => {
+    const customerId = req.authenticatedUser._id.toString();;
     const { id } = req.params;
-    
+
     const [order, details] = await Promise.all([
-        Order.find({_id: id, status: true})
-        .populate('customer', 'name'),
-        OrderDetail.find({order: id, status: true})
+        Order.find({ _id: id, status: true })
+            .populate('customer', ['name', 'lastname', 'email']),
+        OrderDetail.find({ order: id, status: true })
             .populate('product', 'name')
     ]);
-    return res.json({order, details});
+
+    const customerIdOrder =  order?.[0]?.customer?._id?.toString() || '';
+
+    if (customerIdOrder == customerId) {
+        return res.json({ order, details });
+    }
+
+    return res.status(401).json({ message: 'Error el usuario no tiene autorización.' });
 }
 
 const createOrder = async (req = request, res = response) => {
@@ -39,7 +47,7 @@ const createOrder = async (req = request, res = response) => {
     const order = new Order({ customer });
 
     await order.save();
-    
+
     req.body.idOrder = order._id;
     return createOrderDetail(req, res);
 }
@@ -55,7 +63,7 @@ const updateOrder = async (req = request, res = response) => {
         return res.status(400).json({
             message: `El pedido ha sido cancelado.No puede modificarse.`
         });
-    }    
+    }
 
     if (!statusOrderUpdate.includes(orderTemp.orderStatus)) {
         return res.status(400).json({
@@ -89,6 +97,34 @@ const deleteOrder = async (req = request, res = response) => {
     res.json(order);
 }
 
+const getOrdersByUserId = async (req = request, res = response) => {
+    try {
+        const id = req.authenticatedUser._id;
+
+        const user = User.findById(id);
+
+        if (user.role === "ADMIN_ROLE") {
+            return getOrders();
+        }
+
+
+        const orders = await Order.find({ customer: id, status: true })
+            .populate('customer', 'name')
+            .sort({ createdAt: -1 });
+
+        return res.json({
+            orders
+        });
+
+
+    } catch (error) {
+        console.log('Error al consultar ordenes por id: ', error)
+        return res.status(500).json({
+            message: 'Se ha producido un error al consultar ordenes por id.'
+        });
+    }
+}
+
 
 module.exports = {
     getOrders,
@@ -96,4 +132,5 @@ module.exports = {
     createOrder,
     updateOrder,
     deleteOrder,
+    getOrdersByUserId,
 }
