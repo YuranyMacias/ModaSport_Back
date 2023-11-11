@@ -12,6 +12,7 @@ const getCategories = async (req = request, res = response) => {
         Category.countDocuments(queryStatus),
         Category.find(queryStatus)
             .populate('user', 'name')
+            .sort({ createdAt: -1 })
             .skip(Number(offset))
             .limit(Number(limit))
     ]);

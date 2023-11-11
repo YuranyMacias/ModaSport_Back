@@ -14,6 +14,7 @@ const getUsers = async(req = request, res = response) => {
         User.find(queryStatus)
         .skip(Number(offset))
         .limit(Number(limit))
+        .sort({ createdAt: -1 })
     ]);
     
     res.json({

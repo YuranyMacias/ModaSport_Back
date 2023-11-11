@@ -12,6 +12,7 @@ const getGenders = async (req = request, res = response) => {
         Gender.countDocuments(queryStatus),
         Gender.find(queryStatus)
             .populate('user', 'name')
+            .sort({ createdAt: -1 })
             .skip(Number(offset))
             .limit(Number(limit))
     ]);

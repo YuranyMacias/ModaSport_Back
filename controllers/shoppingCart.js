@@ -36,7 +36,8 @@ const getShoppingCartById = async (req = request, res = response) => {
         const [shoppingCart, details] = await Promise.all([
             ShoppingCart.find({ _id: id, status: true })
                 .populate('coupon', 'code')
-                .populate('customer', 'name'),
+                .populate('customer', 'name')
+                .sort({ createdAt: -1 }),
             ShoppingCartDetail.find({ shoppingCart: id, status: true })
                 .populate('product', ['name', 'images'])
         ]);

@@ -11,6 +11,7 @@ const getSeasons = async (req = request, res = response) => {
         Season.countDocuments(queryStatus),
         Season.find(queryStatus)
             .populate('user', 'name')
+            .sort({ createdAt: -1 })
             .skip(Number(offset))
             .limit(Number(limit))
     ]);

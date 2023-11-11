@@ -12,6 +12,7 @@ const getOrders = async (req = request, res = response) => {
         Order.countDocuments(queryStatus),
         Order.find(queryStatus)
             .populate('customer', 'name')
+            .sort({ createdAt: -1 })
             .skip(Number(offset))
             .limit(Number(limit))
     ]);

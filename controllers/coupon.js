@@ -17,6 +17,7 @@ const getCoupons = async (req = request, res = response) => {
             Coupon.countDocuments(queryStatus),
             Coupon.find(queryStatus)
                 .populate('user', 'name')
+                .sort({ createdAt: -1 })
                 .skip(Number(offset))
                 .limit(Number(limit))
         ]);

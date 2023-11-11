@@ -1,19 +1,10 @@
 const { Schema, model } = require("mongoose");
 
 const PaymentSchema = Schema({
-    user: { 
-        type: Schema.Types.ObjectId, 
-        ref: 'User', 
-        required: true 
-    },
     type: {
         type: String,
-        enum: ['balance', 'card', 'paypal'],
+        enum: ['cash', 'card', 'paypal'],
         required: true 
-    },
-    paymentDetails: { 
-        type: Schema.Types.ObjectId, 
-        // required: true 
     },
     isPaid: { 
         type: Boolean, 
