@@ -2,6 +2,7 @@ const { request, response } = require("express");
 
 const { Payment, Order } = require("../models");
 const { createBalancePayment } = require("./balancePayment");
+const { createPaymentMercadoPago } = require("./mercadoPago");
 
 
 
@@ -49,6 +50,7 @@ const createPayment = async (req = request, res = response) => {
         const orderDB = await Order.findById(idOrder)
             .populate('customer', 'name')
             .populate('payment', ['type', 'isPaid']);
+        req.totalOrder = parseFloat(orderDB.total)
 
         if (orderDB.payment) {
             return res.status(400).json({
@@ -57,19 +59,20 @@ const createPayment = async (req = request, res = response) => {
             });
         }
 
-
         let paymentDetail;
         switch (paymentType) {
-            case 'balance':
-                paymentDetail = await createBalancePayment(idOrder);
+            case 'cash':
+                    // paymentDetail = await createPaymentMercadoPago(totalOrder);
+                    console.log("Cash: ")
                 break;
-            case 'card':
-                // paymentDetail = await createBalancePayment(req, res);
+                case 'mercadoPago':
+                    paymentDetail = await createPaymentMercadoPago();
+                    // paymentDetail = await createBalancePayment(req, res);
                 break;
             case 'paypal':
-                // paymentDetail = await createBalancePayment(req, res);
+                    // paymentDetail = await createBalancePayment(req, res);
+                    console.log("Paypal: ")
                 break;
-
             default:
                 return res.status(400).json({
                     message: `El tipo de pago: ${paymentType} . No coinside con los tipos de pago actuales actuales.`

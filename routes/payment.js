@@ -5,7 +5,7 @@ const { validateJWT, isAdminRole, validateFields } = require("../middlewares");
 const { getPayments, getPaymentById, createPayment } = require("../controllers/payment");
 const { existsPaymentById, existsOrderById, existsUserById, isAuthorizedPaymentType } = require("../helpers");
 
-const AuthorizedPaymentType = ['balance', 'card', 'paypal'];
+const AuthorizedPaymentType = ['cash', 'mercadoPago', 'paypal'];
 
 
 const router = Router();
