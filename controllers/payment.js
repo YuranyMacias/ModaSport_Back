@@ -51,7 +51,6 @@ const createPayment = async (req = request, res = response) => {
             .populate('customer', 'name')
             .populate('payment', ['type', 'isPaid']);
         req.totalOrder = parseFloat(orderDB.total)
-
         if (orderDB.payment) {
             return res.status(400).json({
                 message: 'El pedido ya cuenta con un pago.',
@@ -62,16 +61,16 @@ const createPayment = async (req = request, res = response) => {
         let paymentDetail;
         switch (paymentType) {
             case 'cash':
-                    // paymentDetail = await createPaymentMercadoPago(totalOrder);
-                    console.log("Cash: ")
+                // paymentDetail = await createPaymentMercadoPago(totalOrder);
+                console.log("Cash: ")
                 break;
-                case 'mercadoPago':
-                    paymentDetail = await createPaymentMercadoPago();
-                    // paymentDetail = await createBalancePayment(req, res);
+            case 'mercadoPago':
+                paymentDetail = await createPaymentMercadoPago(req, res);
+                // paymentDetail = await createBalancePayment(req, res);
                 break;
             case 'paypal':
-                    // paymentDetail = await createBalancePayment(req, res);
-                    console.log("Paypal: ")
+                // paymentDetail = await createBalancePayment(req, res);
+                console.log("Paypal: ")
                 break;
             default:
                 return res.status(400).json({

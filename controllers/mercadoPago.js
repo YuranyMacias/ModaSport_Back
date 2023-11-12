@@ -1,10 +1,11 @@
-import mercadopage from "mercadopago";
+const mercadopage =  require('mercadopago');
 
 const HOST = process.env.HOST;
 const MERCADOPAGO_API_KEY = process.env.MERCADOPAGO_API_KEY;
 
-export const createPaymentMercadoPago = async (req, res) => {
-    const totalOrder = req.totalOrder;
+const createPaymentMercadoPago = async (req, res) => {
+    const total = req.totalOrder;
+    console.log(total)
   mercadopage.configure({
     access_token: MERCADOPAGO_API_KEY,
   });
@@ -14,7 +15,7 @@ export const createPaymentMercadoPago = async (req, res) => {
       items: [
         {
           title: "Moda Sport Pedido.",
-          unit_price: totalOrder,
+          unit_price: total,
           currency_id: "COP",
           quantity: 2,
         },
@@ -27,17 +28,17 @@ export const createPaymentMercadoPago = async (req, res) => {
       },
     });
 
-    console.log('Create Order: ------------------> ', result);
+    // console.log('Create Order: ------------------> ', result);
 
     // res.json({ message: "Payment creted" });
-    res.json(result.body);
+    return result.body;
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Something goes wrong" });
   }
 };
 
-export const receiveWebhook = async (req, res) => {
+const receiveWebhook = async (req, res) => {
   try {
     const payment = req.query;
     console.log('payment: ------------------> ', payment);
@@ -52,3 +53,8 @@ export const receiveWebhook = async (req, res) => {
     return res.status(500).json({ message: "Something goes wrong" });
   }
 };
+
+module.exports = {
+    createPaymentMercadoPago,
+    receiveWebhook
+}
