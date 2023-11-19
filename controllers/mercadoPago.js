@@ -30,8 +30,8 @@ const createPaymentMercadoPago = async (req, res) => {
 
     // console.log('Create Order: ------------------> ', result);
 
-    // res.json({ message: "Payment creted" });
-    return result.body;
+    // return res.json({ message: "Payment creted" });
+    // return result.body;
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Something goes wrong" });

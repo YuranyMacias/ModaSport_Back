@@ -81,36 +81,36 @@ const createPayment = async (req = request, res = response) => {
                 break;
         }
 
-        console.log({paymentDetail})
-        const { errors = [], status, details } = paymentDetail;
+        // console.log({paymentDetail})
+        // const { errors = [], status, details } = paymentDetail;
 
-        if (errors.length > 0) {
-            return res.status(400).json(errors);
-        }
+        // if (errors.length > 0) {
+        //     return res.status(400).json(errors);
+        // }
 
-        if (status === 'COMPLETED') {
-            const payment = new Payment({ user, type: paymentType, paymentDetails: details._id, isPaid: true });
-            await payment.save();
+        // if (status === 'COMPLETED') {
+        //     const payment = new Payment({ user, type: paymentType, paymentDetails: details._id, isPaid: true });
+        //     await payment.save();
 
-            const order = await Order.findByIdAndUpdate(
-                idOrder,
-                { payment: payment._id, orderStatus: 'confirmed' },
-                { new: true }
-            );
+        //     const order = await Order.findByIdAndUpdate(
+        //         idOrder,
+        //         { payment: payment._id, orderStatus: 'confirmed' },
+        //         { new: true }
+        //     );
 
-            return res.json({
-                order,
-                payment,
-                paymentDetails: {
-                    status,
-                    details
-                },
-            });
-        }
+        //     return res.json({
+        //         order,
+        //         payment,
+        //         paymentDetails: {
+        //             status,
+        //             details
+        //         },
+        //     });
+        // }
 
-        return res.status(500).json({
-            message: `Error de pagos.`
-        });
+        // return res.status(500).json({
+        //     message: `Error de pagos.`
+        // });
 
     } catch (error) {
         console.log('Error al crear pago del pedido: ', error)
