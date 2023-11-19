@@ -20,9 +20,9 @@ const createPaymentMercadoPago = async (req, res) => {
           quantity: 1,
         },
       ],
-      notification_url: `https://moda-sport.vercel.app/webhook`,
+      notification_url: `https://moda-sport.vercel.app/api/payments/webhook`,
       back_urls: {
-        success: `https://moda-sport.vercel.app/success`,
+        success: `https://moda-sport.vercel.app/api/payments/success`,
         // pending: `${HOST}/pending`,
         // failure: `${HOST}/failure`,
       },
