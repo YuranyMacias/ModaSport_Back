@@ -50,7 +50,8 @@ const createPayment = async (req = request, res = response) => {
         const orderDB = await Order.findById(idOrder)
             .populate('customer', 'name')
             .populate('payment', ['type', 'isPaid']);
-        req.totalOrder = parseFloat(orderDB.total)
+        req.totalOrder = parseFloat(orderDB.total);
+
         if (orderDB.payment) {
             return res.status(400).json({
                 message: 'El pedido ya cuenta con un pago.',
@@ -64,7 +65,8 @@ const createPayment = async (req = request, res = response) => {
                 // paymentDetail = await createPaymentMercadoPago(totalOrder);
                 console.log("Cash: ")
                 break;
-            case 'mercadoPago':
+                case 'mercadoPago':
+                console.log("MercadoPago: ")
                 paymentDetail = await createPaymentMercadoPago(req, res);
                 // paymentDetail = await createBalancePayment(req, res);
                 break;
@@ -79,7 +81,7 @@ const createPayment = async (req = request, res = response) => {
                 break;
         }
 
-
+        console.log({paymentDetail})
         const { errors = [], status, details } = paymentDetail;
 
         if (errors.length > 0) {

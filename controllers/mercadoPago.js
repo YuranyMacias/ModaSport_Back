@@ -4,8 +4,8 @@ const HOST = process.env.HOST;
 const MERCADOPAGO_API_KEY = process.env.MERCADOPAGO_API_KEY;
 
 const createPaymentMercadoPago = async (req, res) => {
-    const total = req.totalOrder;
-    console.log(total)
+    const total = await req.totalOrder;
+    console.log({total})
   mercadopage.configure({
     access_token: MERCADOPAGO_API_KEY,
   });
@@ -17,12 +17,12 @@ const createPaymentMercadoPago = async (req, res) => {
           title: "Moda Sport Pedido.",
           unit_price: total,
           currency_id: "COP",
-          quantity: 2,
+          quantity: 1,
         },
       ],
-      notification_url: `/webhook`,
+      notification_url: `https://moda-sport.vercel.app/webhook`,
       back_urls: {
-        success: `/success`,
+        success: `https://moda-sport.vercel.app/success`,
         // pending: `${HOST}/pending`,
         // failure: `${HOST}/failure`,
       },
