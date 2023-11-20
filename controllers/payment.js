@@ -65,11 +65,33 @@ const createPayment = async (req = request, res = response) => {
                 // paymentDetail = await createPaymentMercadoPago(totalOrder);
                 console.log("Cash: ")
                 break;
-                case 'mercadoPago':
+
+            case 'mercadoPago':
                 console.log("MercadoPago: ")
-                paymentDetail = await createPaymentMercadoPago(req, res);
+                // paymentDetail = await createPaymentMercadoPago(req, res);
                 // paymentDetail = await createBalancePayment(req, res);
-                break;
+                const data = {
+                    totalOrder: parseFloat(orderDB.total),
+                }
+
+
+                const response = await fetch(`https://mercado-pago-dun.vercel.app/payments`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error en la solicitud: ${response.status} - ${response.statusText}`);
+                }
+
+                const dataOrder = await response.json();
+                console.log(dataOrder)
+                return dataOrder;
+
+                break
             case 'paypal':
                 // paymentDetail = await createBalancePayment(req, res);
                 console.log("Paypal: ")
