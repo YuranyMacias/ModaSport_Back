@@ -75,7 +75,7 @@ const createPayment = async (req = request, res = response) => {
                 }
 
 
-                const response = await fetch(`https://mercado-pago-dun.vercel.app/payments`, {
+                const response = await fetch(`https://mercado-pago-dun.vercel.app/create-order`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
