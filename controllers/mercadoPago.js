@@ -1,11 +1,12 @@
-const mercadopage =  require('mercadopago');
+const mercadopage = require('mercadopago');
 
 const HOST = process.env.HOST;
 const MERCADOPAGO_API_KEY = process.env.MERCADOPAGO_API_KEY;
 
 const createPaymentMercadoPago = async (req, res) => {
-    const total = await req.totalOrder;
-    console.log({total})
+
+  const total = await req.totalOrder;
+
   mercadopage.configure({
     access_token: MERCADOPAGO_API_KEY,
   });
@@ -20,9 +21,9 @@ const createPaymentMercadoPago = async (req, res) => {
           quantity: 1,
         },
       ],
-      notification_url: `https://moda-sport.vercel.app/api/payments/webhook`,
+      notification_url: `moda-sport.vercel.app/api/payments/webhook`,
       back_urls: {
-        success: `https://moda-sport.vercel.app/api/payments/success`,
+        success: `moda-sport.vercel.app/api/payments/success`,
         // pending: `${HOST}/pending`,
         // failure: `${HOST}/failure`,
       },
@@ -31,7 +32,7 @@ const createPaymentMercadoPago = async (req, res) => {
     // console.log('Create Order: ------------------> ', result);
 
     // return res.json({ message: "Payment creted" });
-    // return result.body;
+    return result.body;
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Something goes wrong" });
@@ -55,6 +56,6 @@ const receiveWebhook = async (req, res) => {
 };
 
 module.exports = {
-    createPaymentMercadoPago,
-    receiveWebhook
+  createPaymentMercadoPago,
+  receiveWebhook
 }

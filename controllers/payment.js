@@ -68,28 +68,28 @@ const createPayment = async (req = request, res = response) => {
 
             case 'mercadoPago':
                 console.log("MercadoPago: ")
-                // paymentDetail = await createPaymentMercadoPago(req, res);
+                paymentDetail = await createPaymentMercadoPago(req, res);
                 // paymentDetail = await createBalancePayment(req, res);
-                const data = {
-                    totalOrder: parseFloat(orderDB.total),
-                }
+                // const data = {
+                //     totalOrder: parseFloat(orderDB.total),
+                // }
 
 
-                const response = await fetch(`https://mercado-pago-dun.vercel.app/create-order`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data)
-                });
+                // const response = await fetch(`https://mercado-pago-dun.vercel.app/create-order`, {
+                //     method: 'POST',
+                //     headers: {
+                //         'Content-Type': 'application/json',
+                //     },
+                //     body: JSON.stringify(data)
+                // });
 
-                if (!response.ok) {
-                    throw new Error(`Error en la solicitud: ${response.status} - ${response.statusText}`);
-                }
+                // if (!response.ok) {
+                //     throw new Error(`Error en la solicitud: ${response.status} - ${response.statusText}`);
+                // }
 
-                const dataOrder = await response.json();
-                console.log(dataOrder)
-                return dataOrder;
+                // const dataOrder = await response.json();
+                // console.log(dataOrder)
+                // return dataOrder;
 
                 break
             case 'paypal':
@@ -104,6 +104,7 @@ const createPayment = async (req = request, res = response) => {
         }
 
         // console.log({paymentDetail})
+        return res.json({paymentDetail});
         // const { errors = [], status, details } = paymentDetail;
 
         // if (errors.length > 0) {
