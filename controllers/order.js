@@ -6,7 +6,13 @@ const { createOrderDetail } = require("./orderDetail");
 
 const getOrders = async (req = request, res = response) => {
     const { offset = 0, limit = 100 } = req.query;
-    const queryStatus = { status: true };
+    let queryStatus = { status: true };
+    const customerId = req.authenticatedUser._id;
+    const customerDB = User.findById(customerId);
+
+    if (customerDB.role != 'ADMIN_ROLE') {
+        queryStatus.customer = customerId;
+    }
 
     const [totalOrders, orders] = await Promise.all([
         Order.countDocuments(queryStatus),
