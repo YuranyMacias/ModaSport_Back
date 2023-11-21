@@ -7,13 +7,8 @@ const { createOrderDetail } = require("./orderDetail");
 const getOrders = async (req = request, res = response) => {
     const { offset = 0, limit = 100 } = req.query;
     let queryStatus = { status: true };
-    const customerId = req.authenticatedUser._id;
-    const customerDB = User.findById(customerId);
 
-    if (customerDB.role != 'ADMIN_ROLE') {
-        queryStatus.customer = customerId;
-    }
-
+    
     const [totalOrders, orders] = await Promise.all([
         Order.countDocuments(queryStatus),
         Order.find(queryStatus)
@@ -30,7 +25,8 @@ const getOrders = async (req = request, res = response) => {
 }
 
 const getOrdersById = async (req = request, res = response) => {
-    const customerId = req.authenticatedUser._id.toString();;
+    const customerId = req.authenticatedUser._id.toString();
+    const user = await User.findById(customerId);
     const { id } = req.params;
 
     const [order, details] = await Promise.all([
@@ -42,7 +38,7 @@ const getOrdersById = async (req = request, res = response) => {
 
     const customerIdOrder =  order?.[0]?.customer?._id?.toString() || '';
 
-    if (customerIdOrder == customerId) {
+    if (user.role == "ADMIN_ROLE" || customerIdOrder == customerId) {
         return res.json({ order, details });
     }
 
@@ -107,15 +103,15 @@ const deleteOrder = async (req = request, res = response) => {
 const getOrdersByUserId = async (req = request, res = response) => {
     try {
         const id = req.authenticatedUser._id;
+        const user = await User.findById(id);
+        let queryStatus = { status: true };
 
-        const user = User.findById(id);
-
-        if (user.role === "ADMIN_ROLE") {
-            return getOrders();
+        if (user.role != "ADMIN_ROLE") {
+            queryStatus.customer = id.toString()
         }
 
-
-        const orders = await Order.find({ customer: id, status: true })
+        console.log({queryStatus})
+        const orders = await Order.find(queryStatus)
             .populate('customer', 'name')
             .sort({ createdAt: -1 });
 
